@@ -1,0 +1,10 @@
+# 统一行尾符，避免 Windows/Linux 组员协作时产生 CRLF 冲突
+* text=auto eol=lf
+
+# 二进制文件
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
