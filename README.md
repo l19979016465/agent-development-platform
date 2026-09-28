@@ -11,8 +11,22 @@
 | 页面 | 状态 | 说明 |
 | ---- | ---- | ---- |
 | 登录页 | ✅ 已完成 | 账号/密码登录 + 图形验证码 + 记住我，响应式布局 |
-| 工作台首页 | ✅ 已完成（占位） | 登录后的平台首页框架，含功能模块入口占位 |
-| 智能体管理 / 知识库 / 工作流 / 对话调试 / 模型市场 / 发布集成 | 🔨 待开发 | 后续迭代 |
+| 工作台 | ✅ 已完成 | 数据概览（智能体总数/已发布/草稿/累计对话）、最近编辑、模块入口 |
+| 智能体管理 | ✅ 已完成 | 列表检索与筛选、卡片展示、新建/编辑、发布/下线、复制、删除、分页 |
+| 知识库 / 工作流编排 / 对话调试 / 模型市场 | 🔨 待开发 | 统一使用占位页，后续迭代 |
+
+### 已实现的功能细节
+
+**登录模块**
+- 表单校验、验证码校验（点击刷新，校验失败自动换一张）、记住账号、加载态、错误提示
+- 登录态持久化到 localStorage，路由守卫拦截未登录访问
+
+**智能体管理模块**
+- 关键字搜索（名称/简介）、按状态与分类筛选、条件重置，查询条件由 Pinia 统一管理
+- 卡片展示：图标、名称、分类、状态标签、基座模型、创造性参数、对话数、最近更新时间
+- 新建/编辑弹窗：名称、图标、分类、简介、基座模型、创造性滑块、提示词、发布状态，含表单校验
+- 列表操作：发布/下线（二次确认）、复制为新草稿、删除（二次确认）、翻页（删除后自动回退空页）
+- 数据通过 localStorage 模拟持久化，刷新页面不丢失
 
 ## 技术栈
 
@@ -22,7 +36,7 @@
 - **Vue Router 4**（hash 模式路由）
 - **Pinia** 状态管理
 
-登录接口目前为**前端 Mock 实现**（[src/api/auth.js](src/api/auth.js)），后续接入真实后端时仅需替换该文件。
+后端接口目前为**前端 Mock 实现**（`src/api/` 目录），后续接入真实后端时仅需替换该目录下的文件，页面与状态管理代码无需改动。
 
 ## 快速开始
 
@@ -51,20 +65,35 @@ npm run build && npm run preview
 
 ```
 test1/
-├── index.html                 # 入口 HTML
-├── vite.config.js             # Vite 配置
-├── public/                    # 静态资源（favicon 等）
+├── index.html                      # 入口 HTML
+├── vite.config.js                  # Vite 配置
+├── public/                         # 静态资源（favicon 等）
 └── src/
-    ├── main.js                # 应用入口
-    ├── App.vue                # 根组件
-    ├── router/index.js        # 路由 + 登录守卫
-    ├── stores/auth.js         # Pinia 登录状态管理
-    ├── api/auth.js            # 登录接口（Mock）
-    ├── components/            # 公共组件（Logo、验证码等）
-    ├── views/                 # 页面
-    │   ├── Login.vue          # 登录页
-    │   └── Home.vue           # 工作台首页
-    └── assets/styles/         # 全局样式
+    ├── main.js                     # 应用入口
+    ├── App.vue                     # 根组件
+    ├── router/index.js             # 路由 + 登录守卫
+    ├── layouts/
+    │   └── AppLayout.vue           # 平台主框架（侧边导航 + 顶栏）
+    ├── stores/                     # Pinia 状态管理
+    │   ├── auth.js                 # 登录状态
+    │   └── agent.js                # 智能体列表与查询条件
+    ├── api/                        # 接口层（当前为 Mock 实现）
+    │   ├── auth.js                 # 登录接口
+    │   └── agent.js                # 智能体增删改查
+    ├── components/                 # 全局公共组件
+    │   ├── BrandLogo.vue           # 平台 Logo
+    │   └── CaptchaBox.vue          # 图形验证码
+    ├── views/                      # 页面
+    │   ├── Login.vue               # 登录页
+    │   ├── WorkbenchView.vue       # 工作台
+    │   ├── common/
+    │   │   └── ComingSoonView.vue  # 待开发模块占位页
+    │   └── agents/                 # 智能体管理模块
+    │       ├── AgentListView.vue
+    │       └── components/
+    │           ├── AgentCard.vue        # 智能体卡片
+    │           └── AgentFormDialog.vue  # 新建/编辑弹窗
+    └── assets/styles/              # 全局样式
 ```
 
 ## GitHub 协作规范
