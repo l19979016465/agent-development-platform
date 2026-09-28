@@ -22,7 +22,7 @@
 
       <div v-show="!isCollapse" class="aside-footer">
         <p>高级软件工程 · 第 3 组</p>
-        <p>原型系统 v0.2.0</p>
+        <p>原型系统 v0.3.0</p>
       </div>
     </el-aside>
 

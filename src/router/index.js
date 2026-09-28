@@ -34,8 +34,19 @@ const routes = [
         component: () => import('../views/chat/ChatView.vue'),
         meta: { title: '对话调试' },
       },
+      {
+        path: 'knowledge',
+        name: 'knowledge',
+        component: () => import('../views/knowledge/KnowledgeListView.vue'),
+        meta: { title: '知识库' },
+      },
+      {
+        path: 'knowledge/:id',
+        name: 'knowledge-detail',
+        component: () => import('../views/knowledge/KnowledgeDetailView.vue'),
+        meta: { title: '知识库详情' },
+      },
       // 以下模块待开发，统一使用占位页
-      { path: 'knowledge', name: 'knowledge', component: Placeholder, meta: { title: '知识库' } },
       { path: 'workflow', name: 'workflow', component: Placeholder, meta: { title: '工作流编排' } },
       { path: 'models', name: 'models', component: Placeholder, meta: { title: '模型市场' } },
     ],
