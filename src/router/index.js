@@ -2,8 +2,6 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import AppLayout from '../layouts/AppLayout.vue'
 
-const Placeholder = () => import('../views/common/ComingSoonView.vue')
-
 const routes = [
   {
     path: '/login',
@@ -52,8 +50,18 @@ const routes = [
         component: () => import('../views/models/ModelMarketView.vue'),
         meta: { title: '模型市场' },
       },
-      // 以下模块待开发，统一使用占位页
-      { path: 'workflow', name: 'workflow', component: Placeholder, meta: { title: '工作流编排' } },
+      {
+        path: 'workflow',
+        name: 'workflow',
+        component: () => import('../views/workflow/WorkflowListView.vue'),
+        meta: { title: '工作流编排' },
+      },
+      {
+        path: 'workflow/:id',
+        name: 'workflow-editor',
+        component: () => import('../views/workflow/WorkflowEditorView.vue'),
+        meta: { title: '工作流编排' },
+      },
     ],
   },
   // 兜底：未匹配路由回到工作台
