@@ -17,7 +17,7 @@
               </el-tag>
             </div>
             <span class="chat-head__meta">
-              {{ modelLabel }} · 创造性 {{ agent.temperature }} · 已对话 {{ chat.roundCount }} 轮
+              {{ baseModelLabel }} · 创造性 {{ agent.temperature }} · 已对话 {{ chat.roundCount }} 轮
             </span>
           </div>
 
@@ -104,7 +104,8 @@ import MessageBubble from './components/MessageBubble.vue'
 import { useAgentStore } from '../../stores/agent'
 import { useChatStore } from '../../stores/chat'
 import { useAuthStore } from '../../stores/auth'
-import { MODEL_OPTIONS, STATUS_MAP } from '../../api/agent'
+import { STATUS_MAP } from '../../api/agent'
+import { modelLabel } from '../../api/model'
 
 const route = useRoute()
 const agentStore = useAgentStore()
@@ -116,9 +117,7 @@ const scrollRef = ref(null)
 
 const agent = computed(() => chat.activeAgent)
 const userChar = computed(() => auth.displayName.charAt(0) || '我')
-const modelLabel = computed(
-  () => MODEL_OPTIONS.find((m) => m.value === agent.value?.model)?.label || agent.value?.model || ''
-)
+const baseModelLabel = computed(() => modelLabel(agent.value?.model))
 
 /** 按智能体分类给出推荐提问 */
 const suggests = computed(() => {

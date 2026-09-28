@@ -79,7 +79,8 @@ import { Search, Plus, Collection, MoreFilled } from '@element-plus/icons-vue'
 
 import KnowledgeFormDialog from './components/KnowledgeFormDialog.vue'
 import { useKnowledgeStore } from '../../stores/knowledge'
-import { KB_GROUPS, VECTOR_MODELS } from '../../api/knowledge'
+import { KB_GROUPS } from '../../api/knowledge'
+import { modelLabel } from '../../api/model'
 
 const router = useRouter()
 const store = useKnowledgeStore()
@@ -99,9 +100,6 @@ const filtered = computed(() => {
   })
 })
 
-function modelLabel(value) {
-  return VECTOR_MODELS.find((m) => m.value === value)?.label || value
-}
 
 function formatDate(ts) {
   const diff = Date.now() - ts

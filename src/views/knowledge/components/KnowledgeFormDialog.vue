@@ -19,7 +19,7 @@
 
       <el-form-item label="向量模型" prop="vectorModel">
         <el-select v-model="form.vectorModel" placeholder="请选择向量模型" class="full-width">
-          <el-option v-for="m in VECTOR_MODELS" :key="m.value" :label="m.label" :value="m.value" />
+          <el-option v-for="m in vectorModels" :key="m.value" :label="m.label" :value="m.value" />
         </el-select>
         <span class="form-hint">用于将文档切片转换为向量，创建后不建议修改</span>
       </el-form-item>
@@ -55,7 +55,8 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { KB_GROUPS, VECTOR_MODELS, CHUNK_STRATEGIES } from '../../../api/knowledge'
+import { KB_GROUPS, CHUNK_STRATEGIES } from '../../../api/knowledge'
+import { embeddingOptions } from '../../../api/model'
 import { useKnowledgeStore } from '../../../stores/knowledge'
 
 const store = useKnowledgeStore()
@@ -63,6 +64,9 @@ const store = useKnowledgeStore()
 const visible = ref(false)
 const saving = ref(false)
 const formRef = ref(null)
+
+/** 可选的向量模型来自「模型市场」中已上线的向量模型，打开弹窗时实时获取 */
+const vectorModels = ref([])
 
 const emptyForm = () => ({
   name: '',
@@ -83,6 +87,9 @@ const rules = {
 
 function open() {
   Object.assign(form, emptyForm())
+  vectorModels.value = embeddingOptions()
+  // 默认选中第一个可用模型，避免默认值恰好已被下线
+  form.vectorModel = vectorModels.value[0]?.value || ''
   visible.value = true
 }
 

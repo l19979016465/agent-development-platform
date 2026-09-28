@@ -14,7 +14,7 @@
     <p class="agent-card__desc">{{ agent.description || '暂无描述' }}</p>
 
     <div class="agent-card__tags">
-      <el-tag size="small" type="info" effect="plain">{{ modelLabel }}</el-tag>
+      <el-tag size="small" type="info" effect="plain">{{ baseModelLabel }}</el-tag>
       <el-tag size="small" effect="plain">温度 {{ agent.temperature }}</el-tag>
     </div>
 
@@ -55,7 +55,8 @@
 <script setup>
 import { computed } from 'vue'
 import { EditPen, ChatLineSquare, MoreFilled, ChatDotRound, Clock } from '@element-plus/icons-vue'
-import { MODEL_OPTIONS, STATUS_MAP } from '../../../api/agent'
+import { STATUS_MAP } from '../../../api/agent'
+import { modelLabel } from '../../../api/model'
 
 const props = defineProps({
   agent: { type: Object, required: true },
@@ -65,9 +66,8 @@ const emit = defineEmits(['edit', 'debug', 'toggle', 'copy', 'delete'])
 
 const status = computed(() => STATUS_MAP[props.agent.status] || STATUS_MAP.draft)
 
-const modelLabel = computed(
-  () => MODEL_OPTIONS.find((m) => m.value === props.agent.model)?.label || props.agent.model
-)
+/** 基座模型的显示名称，由模型市场统一提供 */
+const baseModelLabel = computed(() => modelLabel(props.agent.model))
 
 /** 相对时间展示 */
 const updatedText = computed(() => {

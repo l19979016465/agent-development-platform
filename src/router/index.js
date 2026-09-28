@@ -46,9 +46,14 @@ const routes = [
         component: () => import('../views/knowledge/KnowledgeDetailView.vue'),
         meta: { title: '知识库详情' },
       },
+      {
+        path: 'models',
+        name: 'models',
+        component: () => import('../views/models/ModelMarketView.vue'),
+        meta: { title: '模型市场' },
+      },
       // 以下模块待开发，统一使用占位页
       { path: 'workflow', name: 'workflow', component: Placeholder, meta: { title: '工作流编排' } },
-      { path: 'models', name: 'models', component: Placeholder, meta: { title: '模型市场' } },
     ],
   },
   // 兜底：未匹配路由回到工作台

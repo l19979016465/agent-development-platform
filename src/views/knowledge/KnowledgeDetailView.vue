@@ -13,7 +13,7 @@
             <el-tag size="small" effect="plain">{{ store.current.group }}</el-tag>
           </div>
           <span class="kb-head__meta">
-            {{ modelLabel }} · {{ strategyLabel }} · {{ store.documents.length }} 文档 ·
+            {{ vectorModelLabel }} · {{ strategyLabel }} · {{ store.documents.length }} 文档 ·
             {{ totalChunks }} 切片
           </span>
         </div>
@@ -150,7 +150,8 @@ import ChunkViewer from './components/ChunkViewer.vue'
 import HitTestPanel from './components/HitTestPanel.vue'
 import DocumentUploadDialog from './components/DocumentUploadDialog.vue'
 import { useKnowledgeStore } from '../../stores/knowledge'
-import { VECTOR_MODELS, CHUNK_STRATEGIES, SUPPORTED_EXT } from '../../api/knowledge'
+import { CHUNK_STRATEGIES, SUPPORTED_EXT } from '../../api/knowledge'
+import { modelLabel } from '../../api/model'
 
 const route = useRoute()
 const router = useRouter()
@@ -168,9 +169,7 @@ const STATUS = {
 
 onMounted(() => store.openKnowledgeBase(Number(route.params.id)))
 
-const modelLabel = computed(
-  () => VECTOR_MODELS.find((m) => m.value === store.current?.vectorModel)?.label || ''
-)
+const vectorModelLabel = computed(() => modelLabel(store.current?.vectorModel))
 const strategyLabel = computed(
   () => CHUNK_STRATEGIES.find((s) => s.value === store.current?.chunkStrategy)?.label || ''
 )

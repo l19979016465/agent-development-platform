@@ -45,7 +45,7 @@
 
       <el-form-item label="基座模型" prop="model">
         <el-select v-model="form.model" placeholder="请选择模型" class="full-width">
-          <el-option v-for="m in MODEL_OPTIONS" :key="m.value" :label="m.label" :value="m.value" />
+          <el-option v-for="m in modelOptions" :key="m.value" :label="m.label" :value="m.value" />
         </el-select>
       </el-form-item>
 
@@ -88,7 +88,8 @@
 <script setup>
 import { computed, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { MODEL_OPTIONS, CATEGORY_OPTIONS } from '../../../api/agent'
+import { CATEGORY_OPTIONS } from '../../../api/agent'
+import { llmOptions } from '../../../api/model'
 import { useAgentStore } from '../../../stores/agent'
 
 const AVATARS = ['🤖', '🎧', '📚', '💻', '📊', '📝', '🧭', '🔍', '💡', '🎨']
@@ -99,6 +100,9 @@ const visible = ref(false)
 const saving = ref(false)
 const formRef = ref(null)
 const editingId = ref(null)
+
+/** 可选的基座模型来自「模型市场」中已上线的大语言模型，打开弹窗时实时获取 */
+const modelOptions = ref([])
 
 const isEdit = computed(() => editingId.value !== null)
 
@@ -126,7 +130,10 @@ const rules = {
 /** 打开弹窗：传入 agent 为编辑，不传为新建 */
 function open(agent = null) {
   editingId.value = agent ? agent.id : null
+  modelOptions.value = llmOptions()
   Object.assign(form, agent ? { ...emptyForm(), ...agent } : emptyForm())
+  // 新建时默认选中第一个可用模型
+  if (!agent) form.model = modelOptions.value[0]?.value || ''
   visible.value = true
 }
 

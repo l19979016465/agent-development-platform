@@ -7,14 +7,8 @@
 
 const STORAGE_KEY = 'agent-platform-agents'
 
-/** 可选模型列表：与「模型市场」模块共用 */
-export const MODEL_OPTIONS = [
-  { label: '通义千问 Qwen-Max', value: 'qwen-max' },
-  { label: '文心一言 ERNIE-4.0', value: 'ernie-4.0' },
-  { label: 'DeepSeek-V3', value: 'deepseek-v3' },
-  { label: 'GLM-4-Plus', value: 'glm-4-plus' },
-  { label: 'Llama-3.1-70B', value: 'llama-3.1-70b' },
-]
+// 可选基座模型统一由「模型市场」提供（见 api/model.js 的 llmOptions），
+// 本模块只保存模型的标识值，展示时用 modelLabel 反查显示名称。
 
 /** 智能体分类 */
 export const CATEGORY_OPTIONS = ['客服问答', '文档处理', '代码开发', '数据分析', '办公助手', '其他']

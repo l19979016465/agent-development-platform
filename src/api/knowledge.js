@@ -8,12 +8,8 @@
 const KB_KEY = 'agent-platform-knowledge-bases'
 const DOC_KEY = 'agent-platform-knowledge-docs'
 
-/** 向量模型（招标书：支持内置向量化模型与第三方向量模型接入） */
-export const VECTOR_MODELS = [
-  { label: 'bge-large-zh-v1.5（内置）', value: 'bge-large-zh' },
-  { label: 'text-embedding-v3（阿里云）', value: 'text-embedding-v3' },
-  { label: 'm3e-base（第三方）', value: 'm3e-base' },
-]
+// 向量模型统一由「模型市场」提供（见 api/model.js 的 embeddingOptions），
+// 本模块只保存模型的标识值，展示时用 modelLabel 反查显示名称。
 
 /** 知识库群组（招标书：按知识库群组、部门组织快速选择） */
 export const KB_GROUPS = ['综合管理', '技术研发', '市场营销', '客户服务']

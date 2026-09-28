@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useAgentStore } from './agent'
 import { streamChatApi } from '../api/chat'
-import { MODEL_OPTIONS } from '../api/agent'
+import { modelLabel } from '../api/model'
 
 let messageId = 0
 const nextId = () => ++messageId
@@ -43,14 +43,13 @@ export const useChatStore = defineStore('chat', {
       if (!this.conversations[agentId]) {
         const agentStore = useAgentStore()
         const agent = agentStore.all.find((a) => a.id === agentId)
-        const modelLabel =
-          MODEL_OPTIONS.find((m) => m.value === agent?.model)?.label || agent?.model || ''
+        const baseModel = modelLabel(agent?.model)
         this.conversations[agentId] = [
           {
             id: nextId(),
             role: 'assistant',
             content: agent
-              ? `你好，我是「${agent.name}」。${agent.description}\n\n已加载基座模型 ${modelLabel}，创造性参数 ${agent.temperature}。有什么可以帮你的吗？`
+              ? `你好，我是「${agent.name}」。${agent.description}\n\n已加载基座模型 ${baseModel}，创造性参数 ${agent.temperature}。有什么可以帮你的吗？`
               : '你好，有什么可以帮你的吗？',
             time: Date.now(),
             welcome: true,
