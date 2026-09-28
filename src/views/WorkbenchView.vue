@@ -62,7 +62,6 @@
           v-for="m in modules"
           :key="m.title"
           class="module-card"
-          :class="{ 'is-ready': m.ready }"
           @click="router.push(m.path)"
         >
           <span class="module-card__icon">
@@ -71,7 +70,6 @@
           <div class="module-card__body">
             <div class="module-card__head">
               <b>{{ m.title }}</b>
-              <el-tag v-if="!m.ready" size="small" type="warning" effect="plain">开发中</el-tag>
             </div>
             <p>{{ m.desc }}</p>
           </div>
@@ -117,12 +115,13 @@ const recentAgents = computed(() =>
   [...agentStore.all].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 5)
 )
 
+// 平台功能模块入口，6 个模块均已实现
 const modules = [
-  { path: '/agents', title: '智能体管理', desc: '创建、配置与发布智能体', icon: MagicStick, ready: true },
-  { path: '/knowledge', title: '知识库', desc: '上传文档构建专属知识库', icon: Collection, ready: false },
-  { path: '/workflow', title: '工作流编排', desc: '拖拽式搭建多节点工作流', icon: Connection, ready: false },
-  { path: '/chat', title: '对话调试', desc: '实时对话预览与调试', icon: ChatDotRound, ready: false },
-  { path: '/models', title: '模型市场', desc: '接入主流大模型', icon: Cpu, ready: false },
+  { path: '/agents', title: '智能体管理', desc: '创建、配置与发布智能体', icon: MagicStick },
+  { path: '/knowledge', title: '知识库', desc: '上传文档构建专属知识库', icon: Collection },
+  { path: '/workflow', title: '工作流编排', desc: '拖拽式搭建多节点工作流', icon: Connection },
+  { path: '/chat', title: '对话调试', desc: '实时对话预览与调试', icon: ChatDotRound },
+  { path: '/models', title: '模型市场', desc: '接入主流大模型', icon: Cpu },
 ]
 
 function formatTime(ts) {
