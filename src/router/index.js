@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import AppLayout from '../layouts/AppLayout.vue'
 
 const routes = [
   {
@@ -9,15 +10,62 @@ const routes = [
     meta: { title: '登录' },
   },
   {
-    path: '/home',
-    name: 'home',
-    component: () => import('../views/Home.vue'),
-    meta: { title: '工作台' },
-  },
-  {
     path: '/',
+    component: AppLayout,
     redirect: '/home',
+    children: [
+      {
+        path: 'home',
+        name: 'home',
+        component: () => import('../views/WorkbenchView.vue'),
+        meta: { title: '工作台' },
+      },
+      {
+        path: 'agents',
+        name: 'agents',
+        component: () => import('../views/agents/AgentListView.vue'),
+        meta: { title: '智能体管理' },
+      },
+      {
+        path: 'chat',
+        name: 'chat',
+        component: () => import('../views/chat/ChatView.vue'),
+        meta: { title: '对话调试' },
+      },
+      {
+        path: 'knowledge',
+        name: 'knowledge',
+        component: () => import('../views/knowledge/KnowledgeListView.vue'),
+        meta: { title: '知识库' },
+      },
+      {
+        path: 'knowledge/:id',
+        name: 'knowledge-detail',
+        component: () => import('../views/knowledge/KnowledgeDetailView.vue'),
+        meta: { title: '知识库详情' },
+      },
+      {
+        path: 'models',
+        name: 'models',
+        component: () => import('../views/models/ModelMarketView.vue'),
+        meta: { title: '模型市场' },
+      },
+      {
+        path: 'workflow',
+        name: 'workflow',
+        component: () => import('../views/workflow/WorkflowListView.vue'),
+        meta: { title: '工作流编排' },
+      },
+      {
+        path: 'workflow/:id',
+        name: 'workflow-editor',
+        component: () => import('../views/workflow/WorkflowEditorView.vue'),
+        meta: { title: '工作流编排' },
+      },
+    ],
   },
+  // 兜底：未匹配路由回到工作台
+  { path: '/:pathMatch(.*)*', redirect: '/home' },
 ]
 
 // 使用 hash 模式：打包后的静态文件无需服务端路由配置即可部署演示
@@ -29,10 +77,10 @@ const router = createRouter({
 // 全局路由守卫：未登录跳转登录页，已登录访问登录页则跳转工作台
 router.beforeEach((to) => {
   const auth = useAuthStore()
-  if (to.path !== '/login' && !auth.isLoggedIn) {
+  if (to.name !== 'login' && !auth.isLoggedIn) {
     return '/login'
   }
-  if (to.path === '/login' && auth.isLoggedIn) {
+  if (to.name === 'login' && auth.isLoggedIn) {
     return '/home'
   }
 })
