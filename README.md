@@ -15,7 +15,8 @@
 | 智能体管理 | ✅ 已完成 | 列表检索与筛选、卡片展示、新建/编辑、发布/下线、复制、删除、分页 |
 | 对话调试 | ✅ 已完成 | 智能体切换、流式对话、推荐提问、提示词查看、清空会话 |
 | 知识库 | ✅ 已完成 | 知识库管理、文档上传解析、切片查看与原文定位、命中测试 |
-| 工作流编排 / 模型市场 | 🔨 待开发 | 统一使用占位页，后续迭代 |
+| 模型市场 | ✅ 已完成 | 模型广场、第三方模型接入、服务与版本管理、多模型同步比对测试 |
+| 工作流编排 | 🔨 待开发 | 使用占位页，后续迭代 |
 
 ### 已实现的功能细节
 
@@ -48,6 +49,15 @@
 - **切片查看与原文定位**：左侧切片列表（序号、token 数），点击任一叶切片，右侧原文自动高亮该切片对应的字符区间，并显示「已定位到第 N 个切片（第 X–Y 字符）」
 - **命中测试**：输入自然语言问题，在知识库范围内检索最相关切片，返回相似度排序结果；支持滑动条调节召回数量（TopK）与匹配分阈值；每条结果可一键跳回原文高亮位置，便于直观验收检索效果
 - 检索打分由 `src/api/knowledge.js` 的字符 2-gram 重合度模拟，接入真实向量检索时替换该函数即可
+
+**模型市场模块**
+- 模型广场：预置 Qwen、Ernie、DeepSeek、GLM、Llama 等主流大模型，以及内置 embedding 与 rerank 排序模型；支持按模型类型（大语言模型 / 向量模型 / 排序模型）、来源（平台预置 / 第三方接入）、服务状态筛选与关键字搜索
+- **接入第三方模型**：按标准 OpenAPI 规范填写接口规范、接入协议（HTTP / WebSocket / gRPC）、接口地址、API Key、上下文长度、TPS 超分比例；**显示名称支持自定义**；接入前可做连通性测试，成功时返回服务响应耗时
+- 服务管理：服务上线 / 下线 / 重启，调整 TPS 超分比例；下线后的模型会自动从智能体与知识库的可选模型中移除
+- 版本管理：多版本列表、切换当前版本（切换后自动重新上线）、新增版本
+- 评估指标：自动规则评估得分；人工评估维度可由用户自定义增删（最多 5 个），系统按维度自动计算平均分与正向示例占比
+- **多模型同步比对测试**：同一个问题并行发给 2~4 个已上线的大语言模型，并排流式展示回答，可对比回答内容、响应耗时与 Token 消耗
+- 模型市场是平台内模型信息的**唯一来源**：`src/views/agents` 的基座模型下拉读取已上线的语言模型，`src/views/knowledge` 的向量模型下拉读取已上线的向量模型，均通过 `src/api/model.js` 的 `llmOptions()` / `embeddingOptions()` / `modelLabel()` 获取
 
 ## 技术栈
 
@@ -99,12 +109,14 @@ test1/
     │   ├── auth.js                 # 登录状态
     │   ├── agent.js                # 智能体列表与查询条件
     │   ├── chat.js                 # 会话消息与流式状态
-    │   └── knowledge.js            # 知识库、文档、切片与命中结果
+    │   ├── knowledge.js            # 知识库、文档、切片与命中结果
+    │   └── model.js                # 模型列表、服务状态与比对结果
     ├── api/                        # 接口层（当前为 Mock 实现）
     │   ├── auth.js                 # 登录接口
     │   ├── agent.js                # 智能体增删改查
     │   ├── chat.js                 # 模拟对话回复（流式）
-    │   └── knowledge.js            # 知识库/文档/切片/检索
+    │   ├── knowledge.js            # 知识库/文档/切片/检索
+    │   └── model.js                # 模型接入/服务管理/比对（模型信息的唯一来源）
     ├── components/                 # 全局公共组件
     │   ├── BrandLogo.vue           # 平台 Logo
     │   └── CaptchaBox.vue          # 图形验证码
@@ -123,14 +135,21 @@ test1/
     │   │   └── components/
     │   │       ├── AgentSelector.vue    # 智能体选择列表
     │   │       └── MessageBubble.vue    # 消息气泡
-    │   └── knowledge/              # 知识库模块
-    │       ├── KnowledgeListView.vue    # 知识库列表
-    │       ├── KnowledgeDetailView.vue  # 详情（文档管理/切片查看/命中测试）
+    │   ├── knowledge/              # 知识库模块
+    │   │   ├── KnowledgeListView.vue    # 知识库列表
+    │   │   ├── KnowledgeDetailView.vue  # 详情（文档管理/切片查看/命中测试）
+    │   │   └── components/
+    │   │       ├── KnowledgeFormDialog.vue   # 新建知识库弹窗
+    │   │       ├── DocumentUploadDialog.vue  # 上传文档弹窗
+    │   │       ├── ChunkViewer.vue           # 切片列表 + 原文高亮
+    │   │       └── HitTestPanel.vue          # 命中测试面板
+    │   └── models/                 # 模型市场模块
+    │       ├── ModelMarketView.vue      # 模型广场
     │       └── components/
-    │           ├── KnowledgeFormDialog.vue   # 新建知识库弹窗
-    │           ├── DocumentUploadDialog.vue  # 上传文档弹窗
-    │           ├── ChunkViewer.vue           # 切片列表 + 原文高亮
-    │           └── HitTestPanel.vue          # 命中测试面板
+    │           ├── ModelCard.vue             # 模型卡片
+    │           ├── ModelAccessDialog.vue     # 接入第三方模型弹窗
+    │           ├── ModelDetailDrawer.vue     # 详情（服务/版本/评估）
+    │           └── ModelCompareDialog.vue    # 多模型同步比对
     └── assets/styles/              # 全局样式
 ```
 
