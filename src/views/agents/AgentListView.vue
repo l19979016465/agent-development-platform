@@ -72,6 +72,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Plus, RefreshLeft } from '@element-plus/icons-vue'
 
@@ -81,6 +82,7 @@ import { useAgentStore } from '../../stores/agent'
 import { CATEGORY_OPTIONS, STATUS_MAP } from '../../api/agent'
 
 const agentStore = useAgentStore()
+const router = useRouter()
 
 const dialogRef = ref(null)
 
@@ -120,7 +122,8 @@ function handleEdit(agent) {
 }
 
 function handleDebug(agent) {
-  ElMessage.info(`「${agent.name}」对话调试模块正在开发中`)
+  // 携带智能体 id 跳转到对话调试页，由该页自动选中
+  router.push({ path: '/chat', query: { agentId: agent.id } })
 }
 
 async function handleToggle(agent) {

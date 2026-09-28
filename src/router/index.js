@@ -28,10 +28,15 @@ const routes = [
         component: () => import('../views/agents/AgentListView.vue'),
         meta: { title: '智能体管理' },
       },
+      {
+        path: 'chat',
+        name: 'chat',
+        component: () => import('../views/chat/ChatView.vue'),
+        meta: { title: '对话调试' },
+      },
       // 以下模块待开发，统一使用占位页
       { path: 'knowledge', name: 'knowledge', component: Placeholder, meta: { title: '知识库' } },
       { path: 'workflow', name: 'workflow', component: Placeholder, meta: { title: '工作流编排' } },
-      { path: 'chat', name: 'chat', component: Placeholder, meta: { title: '对话调试' } },
       { path: 'models', name: 'models', component: Placeholder, meta: { title: '模型市场' } },
     ],
   },
