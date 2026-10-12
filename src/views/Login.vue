@@ -24,8 +24,6 @@
             </div>
           </li>
         </ul>
-
-        <p class="brand-footer">© 2026 高级软件工程 · 第 3 组</p>
       </div>
 
       <!-- 右侧登录表单 -->
@@ -345,13 +343,6 @@ function handleComingSoon() {
 .feature__body span {
   font-size: 12.5px;
   color: rgba(255, 255, 255, 0.62);
-}
-
-.brand-footer {
-  margin-top: auto;
-  padding-top: 24px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
 }
 
 /* ---------- 右侧表单区 ---------- */
