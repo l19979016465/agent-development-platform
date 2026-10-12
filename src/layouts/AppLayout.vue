@@ -19,11 +19,6 @@
           <template #title>{{ m.title }}</template>
         </el-menu-item>
       </el-menu>
-
-      <div v-show="!isCollapse" class="aside-footer">
-        <p>高级软件工程 · 第 3 组</p>
-        <p>原型系统 v0.5.0</p>
-      </div>
     </el-aside>
 
     <el-container class="app-body">
@@ -205,19 +200,6 @@ function handleComingSoon() {
   background: linear-gradient(90deg, #6366f1, #8b5cf6);
   color: #fff;
   font-weight: 500;
-}
-
-.aside-footer {
-  flex-shrink: 0;
-  padding: 14px 18px;
-  font-size: 11.5px;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.35);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.aside-footer p {
-  margin: 0;
 }
 
 /* ---------- 顶部栏 ---------- */
