@@ -64,6 +64,8 @@ function draw() {
 
   // 验证码字符（随机旋转）
   code = Array.from({ length: props.length }, randomChar).join('')
+  // 验证码由 canvas 绘制，DOM 中读不回；开发环境暴露给 E2E 脚本，生产构建会被消除
+  if (import.meta.env.DEV) window.__CAPTCHA__ = code
   code.split('').forEach((ch, i) => {
     ctx.save()
     ctx.translate(15 + i * (width - 30) / props.length, height / 2 + 1)

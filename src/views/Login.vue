@@ -29,15 +29,17 @@
       <!-- 右侧登录表单 -->
       <div class="form-panel">
         <div class="form-card">
-          <h2 class="form-title">欢迎登录</h2>
-          <p class="form-sub">登录后进入智能体开发工作台</p>
+          <h2 class="form-title">{{ isRegister ? '创建新账号' : '欢迎登录' }}</h2>
+          <p class="form-sub">
+            {{ isRegister ? '注册后即可进入智能体开发工作台' : '登录后进入智能体开发工作台' }}
+          </p>
 
           <el-form
             ref="formRef"
             :model="form"
             :rules="rules"
             size="large"
-            @keyup.enter="handleLogin"
+            @keyup.enter="handleSubmit"
           >
             <el-form-item prop="username">
               <el-input
@@ -49,6 +51,16 @@
               />
             </el-form-item>
 
+            <el-form-item v-if="isRegister" prop="nickname">
+              <el-input
+                v-model.trim="form.nickname"
+                placeholder="请输入昵称（选填）"
+                :prefix-icon="Postcard"
+                clearable
+                autocomplete="nickname"
+              />
+            </el-form-item>
+
             <el-form-item prop="password">
               <el-input
                 v-model="form.password"
@@ -56,7 +68,18 @@
                 placeholder="请输入密码"
                 :prefix-icon="Lock"
                 show-password
-                autocomplete="current-password"
+                :autocomplete="isRegister ? 'new-password' : 'current-password'"
+              />
+            </el-form-item>
+
+            <el-form-item v-if="isRegister" prop="confirmPassword">
+              <el-input
+                v-model="form.confirmPassword"
+                type="password"
+                placeholder="请再次输入密码"
+                :prefix-icon="Lock"
+                show-password
+                autocomplete="new-password"
               />
             </el-form-item>
 
@@ -73,7 +96,7 @@
               </div>
             </el-form-item>
 
-            <div class="form-options">
+            <div v-if="!isRegister" class="form-options">
               <el-checkbox v-model="rememberMe">记住我</el-checkbox>
               <a class="link" @click="handleComingSoon">忘记密码？</a>
             </div>
@@ -82,18 +105,18 @@
               type="primary"
               class="login-btn"
               :loading="loading"
-              @click="handleLogin"
+              @click="handleSubmit"
             >
-              {{ loading ? '登录中…' : '登 录' }}
+              {{ submitText }}
             </el-button>
           </el-form>
 
           <div class="register-row">
-            还没有账号？
-            <a class="link" @click="handleComingSoon">立即注册</a>
+            {{ isRegister ? '已有账号？' : '还没有账号？' }}
+            <a class="link" @click="switchMode">{{ isRegister ? '返回登录' : '立即注册' }}</a>
           </div>
 
-          <div class="demo-tip">
+          <div v-if="!isRegister" class="demo-tip">
             <el-icon><InfoFilled /></el-icon>
             演示账号：admin / admin123（或 user / user123）
           </div>
@@ -104,13 +127,14 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
   User,
   Lock,
   Key,
+  Postcard,
   InfoFilled,
   MagicStick,
   Cpu,
@@ -128,6 +152,8 @@ const auth = useAuthStore()
 const formRef = ref(null)
 const captchaRef = ref(null)
 const loading = ref(false)
+/** 卡片内的模式：false 登录 / true 注册 */
+const isRegister = ref(false)
 
 const features = [
   { icon: MagicStick, title: '零代码搭建', desc: '可视化编排，快速创建专属智能体' },
@@ -139,15 +165,61 @@ const features = [
 const rememberKey = 'agent-platform-remember'
 const form = reactive({
   username: localStorage.getItem(rememberKey) || '',
+  nickname: '',
   password: '',
+  confirmPassword: '',
   captcha: '',
 })
 const rememberMe = ref(!!form.username)
 
+// 注册模式的字段用 v-if 卸载，未渲染的表单项不会注册进表单，因此不会参与校验
 const rules = {
-  username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  username: [
+    { required: true, message: '请输入账号', trigger: 'blur' },
+    {
+      pattern: /^[a-zA-Z0-9_]{4,20}$/,
+      message: '账号需为 4-20 位字母、数字或下划线',
+      trigger: 'blur',
+    },
+  ],
+  nickname: [{ max: 20, message: '昵称最多 20 个字符', trigger: 'blur' }],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max: 20, message: '密码长度为 6-20 位', trigger: 'blur' },
+  ],
+  confirmPassword: [
+    { required: true, message: '请再次输入密码', trigger: 'blur' },
+    {
+      // rules 是静态对象，取不到兄弟字段的当前值，用闭包比较 form.password
+      validator: (_rule, value, callback) =>
+        value === form.password ? callback() : callback(new Error('两次输入的密码不一致')),
+      trigger: ['blur', 'change'],
+    },
+  ],
   captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+}
+
+const submitText = computed(() => {
+  if (loading.value) return isRegister.value ? '注册中…' : '登录中…'
+  return isRegister.value ? '注 册' : '登 录'
+})
+
+/** 在登录与注册之间切换：清空密码类字段与验证码，保留账号 */
+function switchMode() {
+  if (loading.value) return // 请求进行中不切换，避免提示与当前模式错位
+  isRegister.value = !isRegister.value
+  form.nickname = ''
+  form.password = ''
+  form.confirmPassword = ''
+  form.captcha = ''
+  // 不用 resetFields：它会把账号重置回挂载时的初始值，抹掉「记住我」预填的内容
+  formRef.value?.clearValidate()
+  captchaRef.value?.refresh()
+}
+
+function handleSubmit() {
+  if (isRegister.value) handleRegister()
+  else handleLogin()
 }
 
 async function handleLogin() {
@@ -178,6 +250,41 @@ async function handleLogin() {
     router.push('/home')
   } catch (err) {
     ElMessage.error(err.message || '登录失败，请重试')
+    captchaRef.value.refresh()
+    form.captcha = ''
+  } finally {
+    loading.value = false
+  }
+}
+
+async function handleRegister() {
+  if (loading.value) return
+  try {
+    await formRef.value.validate()
+  } catch {
+    return // 表单校验未通过
+  }
+
+  // 验证码校验（不区分大小写，失败自动刷新）
+  if (!captchaRef.value.verify(form.captcha)) {
+    ElMessage.warning('验证码错误，请重新输入')
+    form.captcha = ''
+    return
+  }
+
+  loading.value = true
+  try {
+    // 注册成功即写入会话，直接进入工作台
+    // 不写 rememberKey：「记住我」是登录模式的控件，注册模式下用户没有勾选动作
+    await auth.register({
+      username: form.username,
+      password: form.password,
+      nickname: form.nickname,
+    })
+    ElMessage.success(`注册成功，欢迎你，${auth.displayName}！`)
+    router.push('/home')
+  } catch (err) {
+    ElMessage.error(err.message || '注册失败，请重试')
     captchaRef.value.refresh()
     form.captcha = ''
   } finally {

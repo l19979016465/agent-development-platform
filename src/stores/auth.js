@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { loginApi } from '../api/auth'
+import { loginApi, registerApi } from '../api/auth'
 
 const TOKEN_KEY = 'agent-platform-token'
 const USER_KEY = 'agent-platform-user'
@@ -26,7 +26,16 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     /** 登录：调用登录接口并持久化会话 */
     async login(form) {
-      const { token, user } = await loginApi(form)
+      this.setSession(await loginApi(form))
+    },
+
+    /** 注册：注册成功后直接写入会话，实现自动登录 */
+    async register(form) {
+      this.setSession(await registerApi(form))
+    },
+
+    /** 登录与注册共用的会话写入（供内部调用） */
+    setSession({ token, user }) {
       this.token = token
       this.user = user
       localStorage.setItem(TOKEN_KEY, token)
