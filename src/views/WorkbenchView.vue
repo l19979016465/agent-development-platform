@@ -6,7 +6,12 @@
         <h2>欢迎回来，{{ auth.displayName }}！</h2>
         <p>智能体开发平台已就绪，今日也要高效工作呀。</p>
       </div>
-      <el-button class="welcome-banner__btn" :icon="Plus" @click="router.push('/agents')">
+      <el-button
+        v-if="auth.can('agents')"
+        class="welcome-banner__btn"
+        :icon="Plus"
+        @click="router.push('/agents')"
+      >
         创建智能体
       </el-button>
     </div>
@@ -25,7 +30,7 @@
     </div>
 
     <!-- 最近编辑 -->
-    <div class="panel">
+    <div v-if="auth.can('agents')" class="panel">
       <div class="panel__head">
         <b>最近编辑的智能体</b>
         <a class="panel__more" @click="router.push('/agents')">查看全部 →</a>
@@ -57,7 +62,12 @@
       <div class="panel__head">
         <b>平台功能模块</b>
       </div>
-      <div class="module-grid">
+      <el-empty
+        v-if="!modules.length"
+        description="暂无可用模块，请联系管理员开通"
+        :image-size="70"
+      />
+      <div v-else class="module-grid">
         <div
           v-for="m in modules"
           :key="m.title"
@@ -91,6 +101,7 @@ import {
   Collection,
   Connection,
   Cpu,
+  UserFilled,
 } from '@element-plus/icons-vue'
 
 import { useAuthStore } from '../stores/auth'
@@ -115,14 +126,21 @@ const recentAgents = computed(() =>
   [...agentStore.all].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 5)
 )
 
-// 平台功能模块入口，6 个模块均已实现
-const modules = [
-  { path: '/agents', title: '智能体管理', desc: '创建、配置与发布智能体', icon: MagicStick },
-  { path: '/knowledge', title: '知识库', desc: '上传文档构建专属知识库', icon: Collection },
-  { path: '/workflow', title: '工作流编排', desc: '拖拽式搭建多节点工作流', icon: Connection },
-  { path: '/chat', title: '对话调试', desc: '实时对话预览与调试', icon: ChatDotRound },
-  { path: '/models', title: '模型市场', desc: '接入主流大模型', icon: Cpu },
+// 平台功能模块入口，按当前用户的角色与模块权限过滤
+const ALL_MODULES = [
+  { path: '/agents', title: '智能体管理', desc: '创建、配置与发布智能体', icon: MagicStick, permission: 'agents' },
+  { path: '/knowledge', title: '知识库', desc: '上传文档构建专属知识库', icon: Collection, permission: 'knowledge' },
+  { path: '/workflow', title: '工作流编排', desc: '拖拽式搭建多节点工作流', icon: Connection, permission: 'workflow' },
+  { path: '/chat', title: '对话调试', desc: '实时对话预览与调试', icon: ChatDotRound, permission: 'chat' },
+  { path: '/models', title: '模型市场', desc: '接入主流大模型', icon: Cpu, permission: 'models' },
+  { path: '/users', title: '用户管理', desc: '账号管理、组织分配与模块权限配置', icon: UserFilled, adminOnly: true },
 ]
+
+const modules = computed(() =>
+  ALL_MODULES.filter(
+    (m) => (!m.adminOnly || auth.isAdmin) && (!m.permission || auth.can(m.permission))
+  )
+)
 
 function formatTime(ts) {
   const diff = Date.now() - ts

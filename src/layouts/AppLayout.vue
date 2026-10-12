@@ -85,6 +85,7 @@ import {
   Connection,
   ChatDotRound,
   Cpu,
+  UserFilled,
 } from '@element-plus/icons-vue'
 
 import BrandLogo from '../components/BrandLogo.vue'
@@ -96,15 +97,23 @@ const auth = useAuthStore()
 
 const isCollapse = ref(false)
 
-// 侧边导航配置：新增模块时在此追加
-const menus = [
-  { path: '/home', title: '工作台', icon: Monitor },
-  { path: '/agents', title: '智能体管理', icon: MagicStick },
-  { path: '/knowledge', title: '知识库', icon: Collection },
-  { path: '/workflow', title: '工作流编排', icon: Connection },
-  { path: '/chat', title: '对话调试', icon: ChatDotRound },
-  { path: '/models', title: '模型市场', icon: Cpu },
+// 侧边导航配置：新增模块时在此追加，permission 与路由 meta 对应
+const ALL_MENUS = [
+  { path: '/home', title: '工作台', icon: Monitor }, // 工作台对所有角色可见
+  { path: '/agents', title: '智能体管理', icon: MagicStick, permission: 'agents' },
+  { path: '/knowledge', title: '知识库', icon: Collection, permission: 'knowledge' },
+  { path: '/workflow', title: '工作流编排', icon: Connection, permission: 'workflow' },
+  { path: '/chat', title: '对话调试', icon: ChatDotRound, permission: 'chat' },
+  { path: '/models', title: '模型市场', icon: Cpu, permission: 'models' },
+  { path: '/users', title: '用户管理', icon: UserFilled, adminOnly: true },
 ]
+
+/** 按当前用户的角色与模块权限过滤导航 */
+const menus = computed(() =>
+  ALL_MENUS.filter(
+    (m) => (!m.adminOnly || auth.isAdmin) && (!m.permission || auth.can(m.permission))
+  )
+)
 
 const avatarChar = computed(() => auth.displayName.charAt(0))
 
